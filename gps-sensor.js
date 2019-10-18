@@ -6,7 +6,7 @@ class GpsSensor {
   process(data) {
     if (data.talker === 'GN') {
       if (data.messageType === 'GLL') {
-        this.log = Location.fromNmea(data.fields);
+        this.loc = Location.fromNmea(data.fields);
       }
     }
   }
@@ -25,7 +25,7 @@ class Location {
   /**
    * @param{string[]} fields
   **/
-  static fromNmea() {
+  static fromNmea(fields) {
     return new Location(
       LocationAxis.fromNmea(...fields.slice(0, 2)),
       LocationAxis.fromNmea(...fields.slice(2, 4)),
@@ -41,14 +41,14 @@ class LocationAxis {
   }
 
   toString() {
-    return `${this.degrees} ${this.minutes}${this.direction}`;
+    return `${this.degrees} ${this.minutes.toFixed(5)}${this.direction}`;
   }
 
   /**
    * @param{string} v1
    * @param{string} v2
   **/
-  fromNmea(v1, v2) {
+  static fromNmea(v1, v2) {
     const n = parseFloat(v1);
     return new LocationAxis(
       v2,

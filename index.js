@@ -10,8 +10,11 @@ setInterval(() => {
 
   println(`Taumorrow`);
   println();
-  println(`Battery: ${battery.voltage}V`);
-  println(`Motor: ${motor.voltage}V ${motor.current}A`);
+  println(`Battery: \x1b[34m${battery.voltage.toFixed(1)}V\x1b[39m`);
+  bar(battery.voltage/30);
+  println();
+  println(`Motor: \x1b[32m${motor.current.toFixed(1)}A\x1b[39m`);
+  bar(motor.current/30);
   println();
   println(`Location: ${gps.loc}`);
   println();
@@ -23,6 +26,14 @@ function clearScreen() {
 
 function resetPos() {
   process.stdout.write(`\x1B[0;0H`);
+}
+
+function bar(value) {
+  value = Math.floor(value * 40);
+  let s = '';
+  for (let i = 0; i < value; i++)
+    s += '#';
+  println(s);
 }
 
 function println(line = '') {

@@ -1,4 +1,5 @@
-const SerialPort = require('serialport');
+//const SerialPort = require('serialport');
+const fs = require('fs');
 const Readline = require('@serialport/parser-readline');
 
 const MultiSensor = require('./multi-sensor');
@@ -15,7 +16,7 @@ const parser = new Readline();
 parser.on('data', line => {
   try {
     const data = parseNmea(line);
-    for (const sensor in sensors) {
+    for (const sensor of sensors) {
       sensor.process(data);
     }
   } catch (err) {
@@ -23,14 +24,17 @@ parser.on('data', line => {
   }
 });
 
-SerialPort.list().then(ports => {
+//SerialPort.list().then(ports => {
+Promise.resolve(['/dev/ttyACM0', '/dev/ttyACM1']).then(ports => {
   for (const port of ports) {
     try {
-      const stream = new SerialPort(port.comName, { baudRate: 256000 });
+      //const stream = new SerialPort(port);
+      const stream = fs.createReadStream(port);
       stream.pipe(parser);
+      //stream.pipe(process.stdout);
       stream.on('error', console.error);
     } catch (err) {
-      console.error(err);
+      //console.error(err);
     }
   }
 }).catch(console.error);
