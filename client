@@ -10,5 +10,4 @@ ipcClient.on('data', data => {
   const str = data.toString('utf-8');
   const obj = JSON.parse(str);
   console.log(obj[key]);
-  console.log(process.argv);
 });
