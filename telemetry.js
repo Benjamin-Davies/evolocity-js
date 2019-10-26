@@ -1,7 +1,9 @@
-//const request = require('request');
-const { battery, motor, gps } = require('./sensors');
+const { appendFile, unlinkSync } = require('fs');
+const net = require('net');
 const firebase = require('firebase/app');
 require('firebase/database');
+
+const { battery, motor, gps } = require('./sensors');
 
 var firebaseConfig = {
     apiKey: "AIzaSyBSeAWcNcpOhjivaOnpoCEyhFoIPxTw-L4",
@@ -13,6 +15,22 @@ var firebaseConfig = {
     appId: "1:429800378148:web:26445bf438e92f6cdf2db1"
   };
 firebase.initializeApp(firebaseConfig);
+
+/**@type{net.Socket[]} */
+const clients = [];
+const ipcServer = net.createServer(c => {
+  const index = clients.length;
+  clients.push(c);
+
+  c.on('close', () => {
+    clients.splice(index, 1);
+  })
+});
+// Attempt to clean up previous sockets
+try {
+  unlinkSync('/tmp/tau-morrow');
+} catch {}
+ipcServer.listen('/tmp/tau-morrow');
 
 function sendTelemetry() {
   const data = gatherData();
@@ -31,21 +49,15 @@ function gatherData() {
 }
 
 function sendData(data) {
-  require('fs').appendFile('sensors.log', JSON.stringify(data) + '\n', err => {
-    console.error(err);
-  });
-}
+  const line = JSON.stringify(data) + '\n';
 
-//unused
-  //request({
-    //url: 'https://php.mmc.school.nz/201BH/benjamindavies/evolocity/telemetry',
-    //method: 'POST',
-    //json: data,
-    //rejectUnauthorized: false,
-  //}).on('data', data => {
-	  //console.log(data.toString('utf-8'));
-  //}).on('error', err => {
-    //console.error(err);
-  //});
+  appendFile('sensors.log', line, err => {
+    if (err) console.error(err);
+  });
+
+  for (const c of clients) {
+    c.write(line);
+  }
+}
 
 module.exports = sendTelemetry;
