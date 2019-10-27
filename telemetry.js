@@ -29,7 +29,7 @@ const ipcServer = net.createServer(c => {
 // Attempt to clean up previous sockets
 try {
   unlinkSync('/tmp/tau-morrow');
-} catch {}
+} catch (_) {}
 ipcServer.listen('/tmp/tau-morrow');
 
 function sendTelemetry() {
