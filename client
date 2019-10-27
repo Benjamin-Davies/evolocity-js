@@ -9,5 +9,13 @@ const key = process.argv[2];
 ipcClient.on('data', data => {
   const str = data.toString('utf-8');
   const obj = JSON.parse(str);
-  console.log(obj[key]);
+  const value = obj[key];
+  switch (typeof value) {
+    case 'number':
+      console.log(value.toFixed(2));
+      break;
+    default:
+      console.log(value);
+      break;
+  }
 });
