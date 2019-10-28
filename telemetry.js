@@ -1,5 +1,7 @@
 const { appendFile, unlinkSync } = require('fs');
 const net = require('net');
+const { hostname } = require('os');
+
 const firebase = require('firebase/app');
 require('firebase/firestore');
 
@@ -42,6 +44,7 @@ function sendTelemetry() {
 
 function gatherData() {
   return {
+    hostname: hostname(),
     time: new Date(),
     current: motor.current,
     voltage: motor.voltage,
