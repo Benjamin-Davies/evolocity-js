@@ -1,20 +1,23 @@
 const { appendFile, unlinkSync } = require('fs');
 const net = require('net');
 const firebase = require('firebase/app');
-require('firebase/database');
+require('firebase/firestore');
 
 const { battery, motor, gps } = require('./sensors');
 
-var firebaseConfig = {
-    apiKey: "AIzaSyBSeAWcNcpOhjivaOnpoCEyhFoIPxTw-L4",
-    authDomain: "tau-morrow.firebaseapp.com",
-    databaseURL: "https://tau-morrow.firebaseio.com",
-    projectId: "tau-morrow",
-    storageBucket: "",
-    messagingSenderId: "429800378148",
-    appId: "1:429800378148:web:26445bf438e92f6cdf2db1"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyBSeAWcNcpOhjivaOnpoCEyhFoIPxTw-L4",
+  authDomain: "tau-morrow.firebaseapp.com",
+  databaseURL: "https://tau-morrow.firebaseio.com",
+  projectId: "tau-morrow",
+  storageBucket: "tau-morrow.appspot.com",
+  messagingSenderId: "429800378148",
+  appId: "1:429800378148:web:6510d4de4e423db7df2db1",
+  measurementId: "G-QR1415PS2B"
+};
 firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const sensors = db.collection('sensors');
 
 /**@type{net.Socket[]} */
 const clients = [];
@@ -44,11 +47,13 @@ function gatherData() {
     voltage: motor.voltage,
     speed: 0,
     battery_voltage: battery.voltage,
-    location: gps.loc && gps.loc.toString(),
+    location: gps.loc && gps.loc.toString() || null,
   };
 }
 
 function sendData(data) {
+  sensors.add(data);
+
   const line = JSON.stringify(data) + '\n';
 
   appendFile('sensors.log', line, err => {
