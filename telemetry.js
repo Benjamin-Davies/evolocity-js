@@ -1,12 +1,16 @@
+// Nodejs imports
 const { appendFile, unlinkSync } = require('fs');
 const net = require('net');
 const { hostname } = require('os');
 
+// Firebase imports
 const firebase = require('firebase/app');
 require('firebase/firestore');
 
+// Project imports
 const { battery, motor, gps } = require('./sensors');
 
+// Firebase setup
 const firebaseConfig = {
   apiKey: "AIzaSyBSeAWcNcpOhjivaOnpoCEyhFoIPxTw-L4",
   authDomain: "tau-morrow.firebaseapp.com",
@@ -21,6 +25,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const sensors = db.collection('sensors');
 
+// IPC setup
 /**@type{net.Socket[]} */
 const clients = [];
 const ipcServer = net.createServer(c => {
@@ -55,14 +60,18 @@ function gatherData() {
 }
 
 function sendData(data) {
+  // Firebase logging
   sensors.add(data);
 
+  // Common JSON line
   const line = JSON.stringify(data) + '\n';
 
+  // File logging
   appendFile('sensors.log', line, err => {
     if (err) console.error(err);
   });
 
+  // IPC logging
   for (const c of clients) {
     c.write(line);
   }
