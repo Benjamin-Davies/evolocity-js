@@ -2,7 +2,7 @@ class GpsSensor {
   constructor() {
     this.loc = undefined;
   }
-  
+
   process(data) {
     if (data.talker === 'GN') {
       if (data.messageType === 'GLL') {
