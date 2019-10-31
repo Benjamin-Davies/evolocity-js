@@ -1,21 +1,31 @@
+// Nodejs imports
 const { appendFile, unlinkSync } = require('fs');
 const net = require('net');
-const firebase = require('firebase/app');
-require('firebase/database');
+const { hostname } = require('os');
 
+// Firebase imports
+const firebase = require('firebase/app');
+require('firebase/firestore');
+
+// Project imports
 const { battery, motor, gps } = require('./sensors');
 
-var firebaseConfig = {
-    apiKey: "AIzaSyBSeAWcNcpOhjivaOnpoCEyhFoIPxTw-L4",
-    authDomain: "tau-morrow.firebaseapp.com",
-    databaseURL: "https://tau-morrow.firebaseio.com",
-    projectId: "tau-morrow",
-    storageBucket: "",
-    messagingSenderId: "429800378148",
-    appId: "1:429800378148:web:26445bf438e92f6cdf2db1"
-  };
+// Firebase setup
+const firebaseConfig = {
+  apiKey: "AIzaSyBSeAWcNcpOhjivaOnpoCEyhFoIPxTw-L4",
+  authDomain: "tau-morrow.firebaseapp.com",
+  databaseURL: "https://tau-morrow.firebaseio.com",
+  projectId: "tau-morrow",
+  storageBucket: "tau-morrow.appspot.com",
+  messagingSenderId: "429800378148",
+  appId: "1:429800378148:web:6510d4de4e423db7df2db1",
+  measurementId: "G-QR1415PS2B"
+};
 firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const sensors = db.collection('sensors');
 
+// IPC setup
 /**@type{net.Socket[]} */
 const clients = [];
 const ipcServer = net.createServer(c => {
@@ -39,22 +49,29 @@ function sendTelemetry() {
 
 function gatherData() {
   return {
+    hostname: hostname(),
     time: new Date(),
     current: motor.current,
     voltage: motor.voltage,
     speed: 0,
     battery_voltage: battery.voltage,
-    location: gps.loc && gps.loc.toString(),
+    location: gps.loc && gps.loc.toString() || null,
   };
 }
 
 function sendData(data) {
+  // Firebase logging
+  sensors.add(data);
+
+  // Common JSON line
   const line = JSON.stringify(data) + '\n';
 
+  // File logging
   appendFile('sensors.log', line, err => {
     if (err) console.error(err);
   });
 
+  // IPC logging
   for (const c of clients) {
     c.write(line);
   }
