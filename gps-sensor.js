@@ -1,15 +1,50 @@
 const { firestore: { GeoPoint } } = require('firebase');
+const { Socket } = require('net');
+
+const USE_NMEA = false;
+
+const GPSD_PORT = 2947;
+const GPSD_INIT = '?WATCH={"class":"WATCH","json":true}';
 
 class GpsSensor {
   constructor() {
     this.loc = null;
+    this.speed = 0;
+
+    if (!USE_NMEA) {
+      this.gpsdSocket = new Socket();
+      this.gpsdSocket.setEncoding('ascii');
+      this.gpsdSocket.on('data', str => {
+        for (const line of str.split('\n')) {
+          if (!line)
+            continue;
+          const obj = JSON.parse(line);
+          this.processGpsd(obj);
+        }
+      });
+      this.gpsdSocket.connect(GPSD_PORT, 'localhost');
+    }
   }
 
   process(data) {
-    if (data.talker === 'GN') {
-      if (data.messageType === 'GLL') {
-        this.loc = pointFromNmea(data.fields);
+    if (USE_NMEA) {
+      if (data.talker === 'GN') {
+        if (data.messageType === 'GLL') {
+          this.loc = pointFromNmea(data.fields);
+        }
       }
+    }
+  }
+
+  processGpsd(data) {
+    switch (data.class) {
+      case 'TPV':
+        this.loc = new GeoPoint(data.lat, data.lon);
+        this.speed = data.speed;
+        break;
+      case 'VERSION':
+        this.gpsdSocket.write(GPSD_INIT);
+        break;
     }
   }
 }

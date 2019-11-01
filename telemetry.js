@@ -55,7 +55,7 @@ function gatherData() {
     voltage: motor.voltage,
     speed: 0,
     battery_voltage: battery.voltage,
-    location: gps.loc && gps.loc.toString() || null,
+    location: gps.loc || null,
   };
 }
 
