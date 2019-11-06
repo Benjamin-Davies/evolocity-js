@@ -4,7 +4,47 @@ const { createConnection } = require('net');
 
 const ipcClient = createConnection('/tmp/tau-morrow');
 
+const underline = color => `%{u${color}}`;
+const red = '#F00';
+const orange = '#F70';
+const yellow = '#FF0';
+const green = '#0F7';
+const blue = '#00F';
+const purple = '#D0F';
+const none = '-';
+
 const key = process.argv[2];
+
+const formatter = (() => {
+  switch (key) {
+    case 'battery_voltage':
+      return val => {
+        const str = val.toFixed(2);
+        let color = '';
+        if (val < 5) color = underline(none);
+        else if (val < 24) color = underline(red);
+        else if (val < 25) color = underline(purple);
+        else color = underline(blue);
+        return color + str + ' V';
+      };
+    case 'current':
+      return val => {
+        const str = val.toFixed(2);
+        let color = '';
+        if (val < 7) color = underline(green);
+        else if (val < 10) color = underline(yellow);
+        else if (val < 15) color = underline(orange);
+        else color = underline(red);
+        return color + str + ' A';
+      };
+    case 'speed':
+      return val => {
+        return (3.6 * val).toFixed(2) + ' km/h';
+      };
+    default:
+      return val => val.toFixed(2);
+  }
+})();
 
 ipcClient.on('data', data => {
   const str = data.toString('utf-8');
@@ -12,7 +52,7 @@ ipcClient.on('data', data => {
   const value = obj[key];
   switch (typeof value) {
     case 'number':
-      console.log(value.toFixed(2));
+      console.log(formatter(value));
       break;
     default:
       console.log(value);
