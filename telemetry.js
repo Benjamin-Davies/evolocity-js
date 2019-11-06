@@ -74,7 +74,7 @@ function sendData(data) {
 
   // IPC logging
   for (const c of clients) {
-    c.write(line);
+    c.write(line, console.error);
   }
 }
 
