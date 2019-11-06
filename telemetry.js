@@ -34,7 +34,7 @@ const ipcServer = net.createServer(c => {
 
   c.on('close', () => {
     clients.splice(index, 1);
-  })
+  });
 });
 // Attempt to clean up previous sockets
 try {
@@ -61,8 +61,7 @@ function gatherData() {
 
 function sendData(data) {
   // Firebase logging
-  if (data.hostname === 'tau-morrow')
-    sensors.add(data);
+  if (data.hostname === 'tau-morrow') sensors.add(data);
 
   // Common JSON line
   const line = JSON.stringify(data) + '\n';
@@ -73,8 +72,13 @@ function sendData(data) {
   });
 
   // IPC logging
-  for (const c of clients) {
-    c.write(line, console.error);
+  for (let i = clients.length - 1; i >= 0; i--) {
+    const c = clients[i];
+    try {
+      c.write(line, console.error);
+    } catch (_) {
+      clients.splice(i, 1);
+    }
   }
 }
 
