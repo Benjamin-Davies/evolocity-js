@@ -61,7 +61,8 @@ function gatherData() {
 
 function sendData(data) {
   // Firebase logging
-  sensors.add(data);
+  if (data.hostname === 'tau-morrow')
+    sensors.add(data);
 
   // Common JSON line
   const line = JSON.stringify(data) + '\n';
