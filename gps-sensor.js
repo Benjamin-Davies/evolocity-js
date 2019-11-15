@@ -14,6 +14,9 @@ class GpsSensor {
     if (!USE_NMEA) {
       this.gpsdSocket = new Socket();
       this.gpsdSocket.setEncoding('ascii');
+      this.gpsdSocket.on('error', err => {
+        console.warn('Failed to connect to gpsd:', err);
+      });
       this.gpsdSocket.on('data', str => {
         for (const line of str.split('\n')) {
           if (!line)
