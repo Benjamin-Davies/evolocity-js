@@ -65,7 +65,7 @@ struct SensorData {
 
 fn underline(color: &str) -> String {
     // {{ == { it has to be escaped
-    format!("%{{u{}}}", color)
+    format!("%{{+u}}%{{u{}}}", color)
 }
 const RED: &str = "#F00";
 const ORANGE: &str = "#F70";
@@ -73,7 +73,7 @@ const YELLOW: &str = "#FF0";
 const GREEN: &str = "#0F7";
 const BLUE: &str = "#00F";
 const PURPLE: &str = "#D0F";
-const NONE: &str = "-";
+const NONE: &str = "#222";
 
 type AnyError = Box<dyn Error>;
 
