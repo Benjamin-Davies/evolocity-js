@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cross build --target arm-unknown-linux-gnueabi --release
+cp ./target/arm-unknown-linux-gnueabi/release/rs-client ../client
