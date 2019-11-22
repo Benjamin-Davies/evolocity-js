@@ -1,3 +1,3 @@
 const telemetry = require('./telemetry');
 
-setInterval(telemetry, 500);
+setInterval(telemetry, 1000);
