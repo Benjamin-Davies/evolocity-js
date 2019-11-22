@@ -52,9 +52,9 @@ function gatherData() {
   const voltage = 24;
   const { speed } = gps;
 
-  const economy = (3.6 * speed) > 0
+  const economy = (3.6 * speed) > 0.5
     ? (speed * 3.6) / (voltage * current)
-    : null;
+    : 0;
 
   return {
     hostname: hostname(),

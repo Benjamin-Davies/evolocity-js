@@ -47,7 +47,11 @@ fn main() -> Result<(), AnyError> {
         },
         "speed" => loop {
             let SensorData { speed, .. } = reader.read_data()?;
-            println!("{:.2}", 3.6 * speed);
+            println!("{:.2} km/h", 3.6 * speed);
+        },
+        "economy" => loop {
+            let SensorData { economy, .. } = reader.read_data()?;
+            println!("{:.2} Wh/km", economy);
         },
         _ => panic!("No case for {}", key),
     }
@@ -61,6 +65,7 @@ struct SensorData {
     pub voltage: f64,
     pub battery_voltage: f64,
     pub speed: f64,
+    pub economy: f64,
 }
 
 fn underline(color: &str) -> String {
