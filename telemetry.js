@@ -48,14 +48,23 @@ function sendTelemetry() {
 }
 
 function gatherData() {
+  const { current } = motor;
+  const voltage = 24;
+  const { speed } = gps;
+
+  const economy = (3.6 * speed) > 0
+    ? (speed * 3.6) / (voltage * current)
+    : null;
+
   return {
     hostname: hostname(),
     time: new Date(),
-    current: motor.current,
-    voltage: motor.voltage,
+    current,
+    voltage,
     battery_voltage: battery.voltage,
     location: gps.loc || null,
-    speed: gps.speed,
+    speed,
+    economy,
   };
 }
 
@@ -77,7 +86,9 @@ function sendData(data) {
   for (let i = clients.length - 1; i >= 0; i--) {
     const c = clients[i];
     try {
-      c.write(line, console.error);
+      c.write(line, err => {
+        if (err) console.error(err);
+      });
     } catch (_) {
       clients.splice(i, 1);
     }
