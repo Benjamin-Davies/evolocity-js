@@ -61,7 +61,9 @@ function gatherData() {
 
 function sendData(data) {
   // Firebase logging
-  if (data.hostname === 'tau-morrow') sensors.add(data);
+  if (data.hostname === 'tau-morrow' &&
+      data.battery_voltage >= 12)
+    sensors.add(data);
 
   // Common JSON line
   const line = JSON.stringify(data) + '\n';
