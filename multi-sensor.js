@@ -16,7 +16,7 @@ class MultiSensor {
     return 5/220*1220* this.voltageSensor.value/1024;
   }
   get current() {
-    const value = 1/0.066*2.5*(1-2*this.currentSensor.value/1024);
+    const value = 1/0.066*2.5*(0.5-this.currentSensor.value/1024);
     this.rollingAvg[0] = value;
     const avg = this.rollingAvg.reduce((a,b)=>a+b)/5;
     for (let i = 0; i < 5-1; i++)
