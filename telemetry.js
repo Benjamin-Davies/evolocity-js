@@ -53,11 +53,11 @@ function sendTelemetry() {
 
 function gatherData() {
   const { current } = motor;
-  const voltage = 24;
+  const { voltage } = battery;
   const { speed } = gps;
 
   const economy = (3.6 * speed) > 0.5
-    ? (speed * 3.6) / (voltage * current)
+    ? (voltage * current) / (speed * 3.6)
     : 0;
 
   return {
@@ -65,7 +65,7 @@ function gatherData() {
     time: new Date(),
     current,
     voltage,
-    battery_voltage: battery.voltage,
+    battery_voltage: voltage,
     location: gps.loc || null,
     speed,
     economy,
