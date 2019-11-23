@@ -44,7 +44,11 @@ ipcServer.listen('/tmp/tau-morrow');
 
 function sendTelemetry() {
   const data = gatherData();
-  sendData(data);
+  try {
+    sendData(data);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 function gatherData() {
